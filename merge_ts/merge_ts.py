@@ -16,12 +16,13 @@ import os
 from pathlib import Path
 from typing import Annotated
 
-import merge_ts_loop
 import typer
 from qcore import xyts
 
+from merge_ts import merge_ts_loop
 
-def main(
+
+def merge_ts(
     component_xyts_filepaths: Annotated[
         list[Path],
         typer.Argument(
@@ -98,5 +99,11 @@ def main(
     os.close(merged_fd)
 
 
+# The following function is here to define an entrypoint for the setup.py file.
+def main():
+    """Main script entrypoint."""
+    typer.run(merge_ts)
+
+
 if __name__ == "__main__":
-    typer.run(main)
+    main()

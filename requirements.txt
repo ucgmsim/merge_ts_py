@@ -1,5 +1,5 @@
 cython
 typer
-qcore
-# this is a transient dependency from qcore
-numpy
+git+https://github.com/ucgmsim/qcore
+setuptools
+typer
