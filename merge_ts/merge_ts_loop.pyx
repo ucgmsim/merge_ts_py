@@ -13,7 +13,6 @@ def merge_fds(
     int merged_fd, _component_xyts_files, int merged_nt, int merged_ny, _local_nxs, _local_nys, _y0s
 ):
     cdef int float_size, cur_timestep, cur_component, cur_y, i, y0, local_ny, local_nx, xyts_fd, n_files
-
     cdef int *component_xyts_files, *local_nxs, *local_nys, *y0s
 
     n_files = len(_component_xyts_files)
@@ -31,21 +30,21 @@ def merge_fds(
         local_nxs[i] = _local_nxs[i]
         local_nys[i] = _local_nys[i]
         y0s[i] = _y0s[i]
-
     for cur_timestep in range(merged_nt):
         for cur_component in range(3):  # for each component
-            for cur_ in range(merged_ny):
+            for cur_y in range(merged_ny):
                 for i in range(n_files):
                     y0 = y0s[i]
                     local_ny = local_nys[i]
                     local_nx = local_nxs[i]
                     xyts_fd = component_xyts_files[i]
-                    if y0 > cur_y or cur_y >= y0 + local_ny:
+                    if y0 > cur_y:
+                        break
+                    if cur_y >= y0 + local_ny:
                         continue
                     # By passing None as the offset, sendfile() will read from
                     # the current position in xyts_fd
                     sendfile(merged_fd, xyts_fd, NULL, local_nx * 4)
-
     free(component_xyts_files)
     free(local_nxs)
     free(local_nys)
