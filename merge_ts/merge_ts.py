@@ -38,16 +38,17 @@ def merge_ts(
     ],
 ):
     """Merge XYTS files."""
+
     component_xyts_files = sorted(
         [
-            xyts.XYTSFile(xyts_file_path, proc_local_file=True, no_gp=True)
+            xyts.XYTSFile(
+                xyts_file_path, proc_local_file=True, meta_only=True, round_dt=False
+            )
             for xyts_file_path in component_xyts_filepaths
         ],
         key=lambda xyts_file: (xyts_file.y0, xyts_file.x0),
     )
-
     top_left = component_xyts_files[0]
-
     merged_ny = top_left.ny
     merged_nt = top_left.nt
 
@@ -60,6 +61,7 @@ def merge_ts(
         os.lseek(xyts_file_descriptor, xyts_proc_header_size, os.SEEK_SET)
         xyts_file_descriptors.append(xyts_file_descriptor)
 
+    # If output doesn't exist when we os.open it, we'll get an error.
     output.touch()
     merged_fd = os.open(output, os.O_WRONLY)
 
@@ -80,9 +82,7 @@ def merge_ts(
         + top_left.mlat.tobytes()
         + top_left.mlon.tobytes()
     )
-
     os.write(merged_fd, xyts_header)
-
     merge_ts_loop.merge_fds(
         merged_fd,
         xyts_file_descriptors,
