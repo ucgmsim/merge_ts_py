@@ -1,0 +1,5 @@
+cython
+typer
+qcore
+# this is a transient dependency from qcore
+numpy
