@@ -12,6 +12,32 @@ cdef extern from "sys/sendfile.h":
 def merge_fds(
     int merged_fd, _component_xyts_files, int merged_nt, int merged_ny, _local_nxs, _local_nys, _y0s
 ):
+    ''' Merge a list of XYTS files by copying their values in order.
+
+    To merge the files we copy the velocity values in each component, for each
+    timestep, in the order they would fit in the merged domain. That is if four
+    files tile the domain like so:
+
+            ┌───────────┬──────────┐
+            │***********│##########│
+            │!!!!!!!!!!!│++++++++++│
+            │    f1     │    f2    │
+            │           │          │
+            ├───────────┼──────────┤
+            │$$$$$$$$$$$│%%%%%%%%%%│
+            │           │          │
+            │    f3     │    f4    │
+            │           │          │
+            │           │          │
+            └───────────┴──────────┘
+
+    Then they are concatenated in the output domain as:
+
+    ***********##########!!!!!!!!!!!++++++++++ ... $$$$$$$$$$$%%%%%%%%%%
+
+    It is assumed _component_xyts_files is a list of xyts files sorted by their
+    top left corner.
+    '''
     cdef int float_size, cur_timestep, cur_component, cur_y, i, y0, local_ny, local_nx, xyts_fd, n_files
     cdef int *component_xyts_files, *local_nxs, *local_nys, *y0s
 
@@ -25,6 +51,8 @@ def merge_fds(
     local_nxs = <int *> malloc(len(_local_nxs) * cython.sizeof(int))
     local_nys = <int *> malloc(len(_local_nys) * cython.sizeof(int))
     y0s = <int *> malloc(len(_y0s) * cython.sizeof(int))
+    # NOTE: we cannot use memcpy() here because CPython lists are not continuous
+    # chunks of memory as they are in C.
     for i in range(len(_component_xyts_files)):
         component_xyts_files[i] = _component_xyts_files[i]
         local_nxs[i] = _local_nxs[i]
