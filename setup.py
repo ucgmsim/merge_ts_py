@@ -15,6 +15,7 @@ setup(
         "qcore @ git+https://github.com/ucgmsim/qcore",
         "setuptools",
         "typer",
+        "typing_extensions",
     ],
     entry_points={"console_scripts": ["merge_ts=merge_ts.merge_ts:main"]},
 )

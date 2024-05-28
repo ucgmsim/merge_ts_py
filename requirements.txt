@@ -3,3 +3,4 @@ typer
 git+https://github.com/ucgmsim/qcore
 setuptools
 typer
+typing_extensions

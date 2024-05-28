@@ -14,10 +14,10 @@ Note:
 """
 import os
 from pathlib import Path
-from typing import Annotated
 
 import typer
 from qcore import xyts
+from typing_extensions import Annotated
 
 from merge_ts import merge_ts_loop
 
