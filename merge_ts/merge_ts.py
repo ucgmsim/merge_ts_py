@@ -23,19 +23,23 @@ from merge_ts import merge_ts_loop
 
 
 def merge_ts(
-    component_xyts_filepaths: Annotated[
-        list[Path],
+    component_xyts_directory: Annotated[
+        Path,
         typer.Argument(
-            help="The input xyts files to merge",
-            dir_okay=False,
+            help="The input xyts directory containing files to merge",
+            dir_okay=True,
+            file_okay=False,
             exists=True,
             readable=True,
         ),
     ],
     output: Annotated[
         Path,
-        typer.Option(help="The output xyts file", dir_okay=False, writable=True),
+        typer.Argument(help="The output xyts file", dir_okay=False, writable=True),
     ],
+    glob_pattern: Annotated[
+        str, typer.Option(help="Set a custom glob pattern for merging the xyts files")
+    ] = "*xyts-*.e3d",
 ):
     """Merge XYTS files."""
 
@@ -44,7 +48,7 @@ def merge_ts(
             xyts.XYTSFile(
                 xyts_file_path, proc_local_file=True, meta_only=True, round_dt=False
             )
-            for xyts_file_path in component_xyts_filepaths
+            for xyts_file_path in component_xyts_directory.glob(glob_pattern)
         ],
         key=lambda xyts_file: (xyts_file.y0, xyts_file.x0),
     )
